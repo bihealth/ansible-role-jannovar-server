@@ -1,0 +1,40 @@
+---
+
+- name: Converge
+  hosts: all
+  pre_tasks:
+    # Address problem on Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863199
+    - name: create man page directories (Debian)
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /usr
+        - /usr/share
+        - /usr/share/man
+        - /user/share/man/man1
+      when: ansible_os_family == "Debian"
+    # package setup
+    - name: update package repository (Debian)
+      apt: update_cache=true
+      when: ansible_os_family == "Debian"
+      changed_when: false  # hack for idempotency
+    - name: update package repository (Red Hat)
+      yum: update_cache=true
+      when: ansible_os_family == "RedHat"
+      changed_when: false  # hack for idempotency
+    - name: install netstat (Debian/Red Hat)
+      package: name=net-tools state=present
+      when: >
+        ansible_os_family == "Debian" or
+        ansible_os_family == "RedHat"
+    # basic setup / fixes
+    - name: basic server setup (includes locale)
+      include_role:
+        name: bihealth.basic_server
+  vars:
+    # bihealth.ssl_certs --------------------------------------------------------------------------
+    ssl_certs_certs:
+      - name: instance
+  roles:
+    - role: ansible-role-jannovar-server

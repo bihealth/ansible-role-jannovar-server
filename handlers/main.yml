@@ -1,0 +1,4 @@
+---
+
+- name: restart jannovar-rest-api
+  systemd: name=jannovar-rest-api state=restarted

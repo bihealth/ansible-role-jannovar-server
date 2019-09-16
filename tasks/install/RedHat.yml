@@ -1,0 +1,16 @@
+---
+
+- name: enable EPEL repository
+  yum: name=epel-release state=present
+
+- name: Install Java 8
+  yum:
+    name:
+      - java-1.8.0-openjdk
+    state: present
+
+- name: install requirements
+  yum:
+    name:
+      - unzip
+    state: present

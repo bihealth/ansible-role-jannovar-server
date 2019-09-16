@@ -1,0 +1,51 @@
+---
+
+- name: Create user for jannovar-rest-api
+  user:
+    name: jannovar-rest-api
+    home: /srv/jannovar-rest-api
+    group: "{{ jannovar_server_nogroup_name }}"
+
+- name: Ensure clone target exists
+  file:
+    recurse: yes
+    state: directory
+    dest: /srv/jannovar-rest-api/{{ jannovar_version }}
+    owner: jannovar-rest-api
+    group: "{{ jannovar_server_nogroup_name }}"
+    mode: u=rwX,go=rX
+
+- name: Download jannovar-cli JAR file
+  get_url:
+    url: https://search.maven.org/remotecontent?filepath=de/charite/compbio/jannovar-cli/{{ jannovar_version }}/jannovar-cli-{{ jannovar_version }}.jar
+    dest: /srv/jannovar-rest-api/{{ jannovar_version }}/jannovar-cli-{{ jannovar_version }}.jar
+  notify:
+    - restart jannovar-rest-api
+
+- name: Download and build databases
+  become: true
+  become_user: jannovar-rest-api
+  shell: |
+    cd /srv/jannovar-rest-api/{{ jannovar_version }}
+    java -jar jannovar-cli-{{ jannovar_version }}.jar download -d {{ item }}
+  args:
+    creates: /srv/jannovar-rest-api/{{ jannovar_version }}/data/{{ item|regex_replace("/", "_") }}.ser
+  loop:
+    - hg19/refseq_curated
+    - hg19/refseq
+    - hg19/ensembl
+  notify:
+    - restart jannovar-rest-api
+
+- name: Install jannovar-rest-api systemd unit file
+  template:
+    src: jannovar-rest-api.service.j2
+    dest: /etc/systemd/system/jannovar-rest-api.service
+  notify: restart jannovar-rest-api
+
+- name: Start jannovar-rest-api-* systemd unit
+  systemd:
+    state: started
+    name: jannovar-rest-api
+    enabled: yes
+    daemon_reload: yes

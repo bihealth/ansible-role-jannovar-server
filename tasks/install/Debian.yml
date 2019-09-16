@@ -1,0 +1,13 @@
+---
+
+- name: Install OpenJDK JRE
+  apt:
+    name:
+      - default-jre
+    state: present
+
+- name: install requirements
+  apt:
+    name:
+      - unzip
+    state: present

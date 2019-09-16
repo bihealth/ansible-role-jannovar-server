@@ -1,0 +1,14 @@
+---
+
+# REQUIRED Settings -------------------------------------------------------------------------------
+
+# (none as of yet)
+
+# Important Settings (you might want to override these) -------------------------------------------
+
+# Jannovar version
+jannovar_version: "0.32"
+
+# Other Settings (the defaults are sensible for most cases) ---------------------------------------
+
+# (none as of yet)
