@@ -12,7 +12,7 @@
         - /usr
         - /usr/share
         - /usr/share/man
-        - /user/share/man/man1
+        - /usr/share/man/man1
       when: ansible_os_family == "Debian"
     # package setup
     - name: update package repository (Debian)
@@ -33,6 +33,9 @@
       include_role:
         name: bihealth.basic_server
   vars:
+    # bihealth.jannovar_server --------------------------------------------------------------------
+    jannovar_server_databases:  # limit to one entry for test
+      - hg19/refseq_curated
     # bihealth.ssl_certs --------------------------------------------------------------------------
     ssl_certs_certs:
       - name: instance

@@ -6,14 +6,17 @@
     home: /srv/jannovar-rest-api
     group: "{{ jannovar_server_nogroup_name }}"
 
-- name: Ensure clone target exists
+- name: Create folder hierarchy
   file:
-    recurse: yes
     state: directory
     dest: /srv/jannovar-rest-api/{{ jannovar_version }}
     owner: jannovar-rest-api
     group: "{{ jannovar_server_nogroup_name }}"
-    mode: u=rwX,go=rX
+    mode: ug=rwX,o=
+  loop:
+    - /srv
+    - /srv/jannovar-rest-api
+    - /srv/jannovar-rest-api/{{ jannovar_version }}
 
 - name: Download jannovar-cli JAR file
   get_url:
@@ -30,10 +33,7 @@
     java -jar jannovar-cli-{{ jannovar_version }}.jar download -d {{ item }}
   args:
     creates: /srv/jannovar-rest-api/{{ jannovar_version }}/data/{{ item|regex_replace("/", "_") }}.ser
-  loop:
-    - hg19/refseq_curated
-    - hg19/refseq
-    - hg19/ensembl
+  loop: "{{ jannovar_server_databases }}"
   notify:
     - restart jannovar-rest-api
 

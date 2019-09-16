@@ -11,4 +11,8 @@ jannovar_version: "0.32"
 
 # Other Settings (the defaults are sensible for most cases) ---------------------------------------
 
-# (none as of yet)
+# The databases to download and annotate with.
+jannovar_server_databases:
+  - hg19/refseq_curated
+  - hg19/refseq
+  - hg19/ensembl
