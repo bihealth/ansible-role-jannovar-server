@@ -9,6 +9,12 @@
 # Jannovar version
 jannovar_version: "0.32"
 
+# The host for the REST API server to listen on.
+jannovar_host: "127.0.0.1"
+
+# The port for the REST API server to listen on.
+jannovar_port: "8080"
+
 # Other Settings (the defaults are sensible for most cases) ---------------------------------------
 
 # The databases to download and annotate with.

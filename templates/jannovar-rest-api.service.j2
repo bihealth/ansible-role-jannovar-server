@@ -9,7 +9,7 @@ Group=nobody
 WorkingDirectory=/srv/jannovar-rest-api/{{ jannovar_version }}
 KillMode=process
 Restart=always
-ExecStart=/usr/bin/java -jar jannovar-cli-{{ jannovar_version }}.jar rest-server --host 127.0.0.1 --port 8080{% for db in jannovar_server_databases %} -d data/{{ db|replace("/", "_") }}.ser{% endfor %}
+ExecStart=/usr/bin/java -jar jannovar-cli-{{ jannovar_version }}.jar rest-server --host {{ jannovar_host }} --port {{ jannovar_port }}{% for db in jannovar_server_databases %} -d data/{{ db|replace("/", "_") }}.ser{% endfor %}
 
 [Install]
 # When should this service be triggered? (this is the equivalent of SysV's runlevel 3)
