@@ -15,6 +15,9 @@ jannovar_host: "127.0.0.1"
 # The port for the REST API server to listen on.
 jannovar_port: "8080"
 
+# Whether or not to expect nginx as reverse proxy.
+jannovar_require_nginx: true
+
 # Other Settings (the defaults are sensible for most cases) ---------------------------------------
 
 # The databases to download and annotate with.

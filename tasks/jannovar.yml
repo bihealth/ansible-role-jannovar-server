@@ -25,7 +25,33 @@
   notify:
     - restart jannovar-rest-api
 
-- name: Download and build databases
+- name: Download and build databases (#1 may fail)
+  become: true
+  become_user: jannovar-rest-api
+  shell: |
+    cd /srv/jannovar-rest-api/{{ jannovar_version }}
+    java -jar jannovar-cli-{{ jannovar_version }}.jar download -d {{ item }}
+  args:
+    creates: /srv/jannovar-rest-api/{{ jannovar_version }}/data/{{ item|regex_replace("/", "_") }}.ser
+  failed_when: false
+  loop: "{{ jannovar_server_databases }}"
+  notify:
+    - restart jannovar-rest-api
+
+- name: Remove bogus chrM entry.
+  shell: |
+    set -euo pipefail
+    export TMPDIR=$(mktemp -d)
+    trap "rm -rf $TMPDIR" EXIT
+    gzip -c -d /srv/jannovar-rest-api/{{ jannovar_version }}/data/{{ item }}/chromInfo.txt.gz >$TMPDIR/chromInfo.txt
+    sed -i -e '/chrM.*16571/d' $TMPDIR/chromInfo.txt
+    gzip -c $TMPDIR/chromInfo.txt >/srv/jannovar-rest-api/{{ jannovar_version }}/data/{{ item }}/chromInfo.txt.gz
+  args:
+    executable: /usr/bin/bash
+  changed_when: false
+  loop: "{{ jannovar_server_databases }}"
+
+- name: Download and build databases (#2 must not fail)
   become: true
   become_user: jannovar-rest-api
   shell: |
@@ -41,11 +67,15 @@
   template:
     src: jannovar-rest-api.service.j2
     dest: /etc/systemd/system/jannovar-rest-api.service
-  notify: restart jannovar-rest-api
+  notify:
+    - daemon-reload
+    - restart jannovar-rest-api
+
+- name: flush handlers
+  meta: flush_handlers
 
 - name: Start jannovar-rest-api-* systemd unit
   systemd:
     state: started
     name: jannovar-rest-api
-    enabled: yes
-    daemon_reload: yes
+    enabled: true

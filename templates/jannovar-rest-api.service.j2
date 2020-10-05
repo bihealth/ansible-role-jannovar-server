@@ -1,7 +1,10 @@
 [Unit]
 Description=Jannovar REST API
+{% if jannovar_require_nginx %}
 Requires=nginx.service
 Before=nginx.service
+{% endif %}
+
 
 [Service]
 User=jannovar-rest-api
